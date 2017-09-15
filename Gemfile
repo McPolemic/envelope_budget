@@ -25,7 +25,7 @@ gem 'puma', '~> 3.7'
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 # gem 'rack-cors'
 
-gem 'money', '~> 6.9'
+gem 'money-rails', '~> 1'
 gem 'monetize', '~> 1.7'
 gem 'values', '~> 1.8.0'
 
