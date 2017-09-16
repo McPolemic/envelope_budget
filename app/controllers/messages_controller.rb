@@ -33,7 +33,10 @@ class MessagesController < ApplicationController
     raw_amount = message.split(' ').last
     amount = Monetize.parse(raw_amount)
 
-    budget.update_attributes!(balance: amount)
+    calculator = MonthlyCalculator.new(amount, Date.today)
+    adjusted_amount = calculator.current_budget_amount
+
+    budget.update_attributes!(balance: adjusted_amount)
 
     render plain: "Groovy! Your balance is currently #{budget.balance.format}."
   end
