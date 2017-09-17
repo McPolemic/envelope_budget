@@ -46,10 +46,12 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
       'Body' => 'Monthly   $100'
     }
 
-    post messages_url, params: params
+    Timecop.freeze(Date.new(2017, 4, 30)) do
+      post messages_url, params: params
+    end
+
     budget = Budget.find_by(from_number: '+15553334444')
 
-    assert_equal budget.balance.format, '$100.00'
-    assert_match /\$100\.00/, response.body
+    assert_equal budget.monthly_amount.format, '$100.00'
   end
 end
