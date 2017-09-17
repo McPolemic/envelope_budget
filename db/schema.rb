@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170916050828) do
+ActiveRecord::Schema.define(version: 20170917043803) do
 
   create_table "budgets", force: :cascade do |t|
     t.string "from_number"
@@ -20,6 +20,7 @@ ActiveRecord::Schema.define(version: 20170916050828) do
     t.datetime "updated_at", null: false
     t.integer "monthly_amount_cents", default: 0, null: false
     t.string "monthly_amount_currency", default: "USD", null: false
+    t.boolean "notify_on_balance_updates"
   end
 
 end

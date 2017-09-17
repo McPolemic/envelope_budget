@@ -7,8 +7,10 @@ class MessagesController < ApplicationController
     case command
     when "setup"
       handle_setup(from_number)
-    when "monthly"
+    when "monthly", "budget"
       handle_monthly_budget_amount(from_number, message)
+    when "update"
+      handle_notification_update(from_number, message)
     else
       handle_transaction(from_number, message)
     end
@@ -19,6 +21,9 @@ class MessagesController < ApplicationController
     render plain: <<~EOF
       Set a monthly budget:
       MONTHLY $500
+
+      Daily balance updates:
+      UPDATE on/off
 
       Sending transactions:
       $12.23 for Burger King
@@ -40,6 +45,30 @@ class MessagesController < ApplicationController
                               monthly_amount: amount)
 
     render plain: "Groovy! Your balance is currently #{budget.balance.format}."
+  end
+
+  def handle_notification_update(from_number, message)
+    budget = Budget.find_by(from_number: from_number)
+
+
+    notify = case message.split(' ').last.downcase
+             when "on", "enable"
+               true
+             when "off", "disable"
+               false
+             else
+               :invalid
+             end
+
+    return render(plain: <<~EOF) if notify == :invalid
+      Error: Could not parse messages.
+      To enable daily budget updates, send "update on".
+      To disable daily budget updates, send "update off".
+      EOF
+
+    budget.update_attributes!(notify_on_balance_updates: notify)
+
+    render(plain: "Daily budget updates have been turned #{notify ? 'on' : 'off'}.")
   end
 
   def handle_transaction(from_number, message)

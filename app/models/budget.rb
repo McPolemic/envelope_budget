@@ -5,5 +5,9 @@ class Budget < ApplicationRecord
     update_attributes!(balance: new_balance)
   end
 
+  def notify_on_balance_updates?
+    notify_on_balance_updates
+  end
+
   monetize :balance_cents, :monthly_amount_cents
 end

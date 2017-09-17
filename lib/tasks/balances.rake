@@ -4,7 +4,7 @@ namespace :balances do
     Budget.all.each do |budget|
       budget.add_daily_budget_amount!
       Messenger.send_message(budget.from_number,
-                             "Good morning! Your budget is now #{budget.balance.format}.")
+                             "Good morning! Your budget is now #{budget.balance.format}.") if budget.notify_on_balance_updates?
     end
   end
 end
