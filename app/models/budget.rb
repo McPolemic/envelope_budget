@@ -1,3 +1,3 @@
 class Budget < ApplicationRecord
-  monetize :balance_cents
+  monetize :balance_cents, :monthly_amount_cents
 end

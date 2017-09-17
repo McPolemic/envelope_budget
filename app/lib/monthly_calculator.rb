@@ -17,13 +17,13 @@ class MonthlyCalculator
     Date.new(year, next_month, -1).day
   end
 
+  def daily_amount
+    budget_amount / number_of_days_in_month
+  end
+
   private
 
   def number_of_days_in_month
     self.class.number_of_days_in_month(current_date)
-  end
-
-  def daily_amount
-    budget_amount / number_of_days_in_month
   end
 end

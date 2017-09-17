@@ -36,7 +36,8 @@ class MessagesController < ApplicationController
     calculator = MonthlyCalculator.new(amount, Date.today)
     adjusted_amount = calculator.current_budget_amount
 
-    budget.update_attributes!(balance: adjusted_amount)
+    budget.update_attributes!(balance: adjusted_amount,
+                              monthly_amount: amount)
 
     render plain: "Groovy! Your balance is currently #{budget.balance.format}."
   end
