@@ -1,5 +1,4 @@
 # TODO
-- [ ] Send a message when we update the balances via Rake task
 - [ ] There should be an option (off by default?) of a daily balance reminder
       or reminder whenever the balance changes (which is at least daily,
       because we're pro-rating the budget amount)
