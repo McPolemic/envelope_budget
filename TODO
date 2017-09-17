@@ -1,6 +1,6 @@
 # TODO
-- [ ] `MONTHLY <amount>` should prorate (e.g. $500 on a 30 day month should
-      give you $16.67 per day, not the whole value all at once)
+- [ ] Send a message when we update the balances via Rake task
 - [ ] There should be an option (off by default?) of a daily balance reminder
       or reminder whenever the balance changes (which is at least daily,
       because we're pro-rating the budget amount)
+
