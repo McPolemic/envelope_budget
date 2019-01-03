@@ -1,24 +1,20 @@
-# README
+# Usage
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Set a list of categories and budget amounts per category. Every month, you
+start out with that amount. Throughout the month, you can text transactions to
+a provided phone number (which Twilio forwards on to this application).
 
-Things you may want to cover:
+> `$100 groceries`
+> `$23 eating out Wendy's`
 
-* Ruby version
+After every message, it will respond back with the new balance:
 
-* System dependencies
+> You have $400 remaining in your "groceries" budget. That's $14.29 per day for
+> the rest of the month.
 
-* Configuration
+> Your "eating out" budget is now $277.00. That's $9.89 per day for the rest of
+> the month.
 
-* Database creation
+This helps you keep track both of the total amount left and a rough per-day
+estimate to ensure you don't the entire budget at the beginning of the month.
 
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
