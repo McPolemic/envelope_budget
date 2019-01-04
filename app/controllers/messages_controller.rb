@@ -19,7 +19,7 @@ class MessagesController < ApplicationController
   end
 
   private
-  def handle_help(from_number)
+  def handle_setup(from_number)
     render plain: <<~EOF
       Set a monthly budget:
       MONTHLY $500 eating out
