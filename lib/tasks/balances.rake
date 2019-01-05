@@ -5,7 +5,7 @@ namespace :balances do
 
     Category.all.each do |category|
       category.update!(balance: category.monthly_amount)
-      message = %Q(Good morning! Your "#{category.name}" budget is now at #{category.balance.format}.)
+      message = %Q(Your "#{category.name}" budget is now at #{category.balance.format}.)
 
       category.budget.users.each do |user|
         Messenger.send_message(user.phone_number,
