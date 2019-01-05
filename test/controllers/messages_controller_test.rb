@@ -35,7 +35,10 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
 
       That's $40.00 per day for the rest of the month.
     EOF
-    assert_equal expected, response.body
+
+    # These are sent to all users (that are signed up), so we look to the last
+    # sent message rather than the response from the endpoint
+    assert_equal expected, Messenger.last_message
   end
 
   test "receiving a transaction from an unknown number" do

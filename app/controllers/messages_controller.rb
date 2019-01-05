@@ -91,9 +91,12 @@ class MessagesController < ApplicationController
       That's #{daily_amount.format} per day for the rest of the month.
     EOF
 
-    logger.info %("Sending message \"#{response}\" to #{from_number}")
+    # Send transaction results to all users on a budget
+    budget.users.each do |user|
+      Messenger.send_message(user.phone_number, response, logger: Rails.logger)
+    end
 
-    render plain: response
+    render plain: ''
   end
 
   def handle_notification_update(phone_number, message)
