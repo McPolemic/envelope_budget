@@ -2,15 +2,20 @@ require 'test_helper'
 
 class MessagesControllerTest < ActionDispatch::IntegrationTest
   setup do
+    # Assume 10 days remaining in the month (for easy math)
+    travel_to Time.new(2019, 4, 20, 12, 00, 00)
+
     budget = Budget.create!(name: "test budget")
     User.create!(budget: budget,
                  phone_number: '+11234567890')
     Category.create!(budget: budget,
                      name: 'Eating Out',
+                     monthly_amount: Money.new(500_00, "USD"),
                      balance: Money.new(500_00, "USD"))
 
     Category.create!(budget: budget,
                      name: 'Groceries',
+                     monthly_amount: Money.new(1000_00, "USD"),
                      balance: Money.new(1000_00, "USD"))
   end
 
@@ -71,6 +76,9 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'get a balance for a specific category' do
+    # 10 days remaining in the month
+    travel_to Time.new(2019, 4, 20, 12, 00, 00)
+
     params = {
       'From' => '+11234567890',
       'Body' => 'Balance eating out'
@@ -78,7 +86,8 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
 
     post messages_url, params: params
 
-    assert_match /\$500\.00/, response.body
+    expected = "Eating Out: $500.00 ($50.00 per day)"
+    assert_equal expected, response.body
   end
 
   test 'get all balances for a budget' do
@@ -90,8 +99,8 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
     post messages_url, params: params
 
     expected = <<~EOF.strip
-      Eating Out: $500.00
-      Groceries: $1,000.00
+      Eating Out: $500.00 ($50.00 per day)
+      Groceries: $1,000.00 ($100.00 per day)
     EOF
 
     assert_equal expected, response.body

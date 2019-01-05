@@ -58,15 +58,16 @@ class MessagesController < ApplicationController
   end
 
   def handle_balance(from_number, category_name)
-    # Return a specific category if specified
-    return handle_balance_for_category(from_number, category_name) if category_name
-
-    # Otherwise, return all balances
     budget = budget_for_phone_number(from_number)
-    categories = budget.categories.order(:name)
+
+    categories = if category_name
+                   [budget.find_category(category_name)]
+                 else
+                   budget.categories.order(:name)
+                 end
 
     response = categories.map do |category|
-      "#{category.name}: #{category.balance.format}"
+      "#{category.name}: #{category.balance.format} (#{category.remaining_per_day.format} per day)"
     end.join("\n")
 
     render plain: response
