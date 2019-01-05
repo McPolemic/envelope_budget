@@ -73,25 +73,6 @@ class MessagesController < ApplicationController
     render plain: response
   end
 
-  def handle_balance_for_category(from_number, category_name)
-    budget = budget_for_phone_number(from_number)
-    category = budget.find_category(category_name)
-
-    response = if category
-                 %Q(Your balance for "#{category.name}" is currently #{category.balance.format}.)
-               else
-                 category_names = budget.categories.map(&:name).join(", ")
-
-                 <<~EOF
-                   "#{category_name}" not found!
-
-                   Available categories: #{category_names}
-                 EOF
-               end
-
-    render plain: response
-  end
-
   def handle_transaction(from_number, message)
     budget = budget_for_phone_number(from_number)
     return render(plain: "Send SETUP for instructions on getting started.") if budget.nil?
