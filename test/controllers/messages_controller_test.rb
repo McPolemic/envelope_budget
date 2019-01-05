@@ -2,14 +2,22 @@ require 'test_helper'
 
 class MessagesControllerTest < ActionDispatch::IntegrationTest
   setup do
-    Budget.create!(from_number: "+11234567890",
-                   balance: Money.new(500_00, "USD"))
+    budget = Budget.create!(name: "test budget")
+    User.create!(budget: budget,
+                 phone_number: '+11234567890')
+    Category.create!(budget: budget,
+                     name: 'Eating Out',
+                     balance: Money.new(500_00, "USD"))
+
+    Category.create!(budget: budget,
+                     name: 'Groceries',
+                     balance: Money.new(1000_00, "USD"))
   end
 
   test "receiving a transaction from a known number" do
     params = {
       'From' => '+11234567890',
-      'Body' => '$15 for Burger King'
+      'Body' => '$15 eating out'
     }
 
     post messages_url, params: params
@@ -20,7 +28,7 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
   test "receiving a transaction from an unknown number" do
     params = {
       'From' => '+19999999999',
-      'Body' => '$15 for Burger King'
+      'Body' => '$15 eating out'
     }
 
     post messages_url, params: params
@@ -42,42 +50,42 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
 
   test "setting a monthly budget amount" do
     params = {
-      'From' => '+15553334444',
-      'Body' => 'Monthly   $100'
+      'From' => '+11234567890',
+      'Body' => 'Monthly   $100 eating out'
     }
 
     post messages_url, params: params
 
-    budget = Budget.find_by(from_number: '+15553334444')
+    budget = User.find_by(phone_number: '+11234567890').budget
+    category = Category.find_by(budget: budget, name: 'Eating Out')
 
-    assert_equal budget.monthly_amount.format, '$100.00'
+    assert_equal category.monthly_amount.format, '$100.00'
   end
 
-  test "disabling budget notifications" do
-    phone_number = '+11234567890'
+  test 'get a balance for a specific category' do
     params = {
-      'From' => phone_number,
-      'Body' => 'update off'
+      'From' => '+11234567890',
+      'Body' => 'Balance eating out'
     }
 
     post messages_url, params: params
 
-    budget = Budget.find_by(from_number: phone_number)
-
-    assert_equal budget.notify_on_balance_updates?, false
-    assert_match /turned off/, response.body
+    assert_match /\$500\.00/, response.body
   end
 
-  test "error on budget notifications" do
-    phone_number = '+11234567890'
+  test 'get all balances for a budget' do
     params = {
-      'From' => phone_number,
-      'Body' => 'update totally invalid'
+      'From' => '+11234567890',
+      'Body' => 'Balance'
     }
 
     post messages_url, params: params
 
-    assert_match /Error/, response.body
-    assert_operator response.body.length, :<, 160
+    expected = <<~EOF.strip
+      Eating Out: $500.00
+      Groceries: $1,000.00
+    EOF
+
+    assert_equal expected, response.body
   end
 end

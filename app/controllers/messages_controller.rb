@@ -5,17 +5,17 @@ class MessagesController < ApplicationController
 
     command, message = raw_message.split(' ', 2)
     command = command.downcase
-    message = message.strip
+    message = message.strip if message
 
     case command
-    when "help", "setup"
+    when "setup"
       handle_setup(from_number)
     when "monthly", "budget"
       handle_monthly_budget_amount(from_number, message)
     when "balance"
       handle_balance(from_number, message)
     else
-      handle_transaction(from_number, message)
+      handle_transaction(from_number, raw_message)
     end
   end
 
@@ -23,25 +23,21 @@ class MessagesController < ApplicationController
   def handle_setup(from_number)
     render plain: <<~EOF
       Set a monthly budget:
-      MONTHLY $500 eating out
+      MONTHLY $500 Eating Out
 
-      Get all remaining balances:
-      BALANCE
-
-      Get the category balance:
-      BALANCE groceries
+      Get a balance:
+      BALANCE [category name]
 
       Sending transactions (amount and category):
       $12.23 eating out
-
-      Questions, ask Adam
     EOF
   end
   
   def handle_monthly_budget_amount(from_number, message)
     message = MessageParser.parse(message)
     budget = budget_for_phone_number(from_number)
-    category = budget.categories.find_or_create_by!(name: message.category)
+    category = budget.find_category(message.category)
+    category ||= Category.create!(budget: budget, name: message.category)
 
     # If we're updating a category that already had transactions, let's carry
     # over the difference
@@ -57,18 +53,32 @@ class MessagesController < ApplicationController
     render plain: "Groovy! Your balance is currently #{balance.format}."
   end
 
-  def handle_balance(from_number, message)
-    message = MessageParser.parse(message)
+  def handle_balance(from_number, category_name)
+    # Return a specific category if specified
+    return handle_balance_for_category(from_number, category_name) if category_name
+
+    # Otherwise, return all balances
     budget = budget_for_phone_number(from_number)
-    category = budget.categories.find(name: message.category)
+    categories = budget.categories.order(:name)
+
+    response = categories.map do |category|
+      "#{category.name}: #{category.balance.format}"
+    end.join("\n")
+
+    render plain: response
+  end
+
+  def handle_balance_for_category(from_number, category_name)
+    budget = budget_for_phone_number(from_number)
+    category = budget.find_category(category_name)
 
     response = if category
-                 %q(Your balance for "#{category.name}" is currently #{category.balance.format}.)
+                 %Q(Your balance for "#{category.name}" is currently #{category.balance.format}.)
                else
                  category_names = budget.categories.map(&:name).join(", ")
 
                  <<~EOF
-                   "#{message.category}" not found!
+                   "#{category_name}" not found!
 
                    Available categories: #{category_names}
                  EOF
@@ -81,8 +91,9 @@ class MessagesController < ApplicationController
     budget = budget_for_phone_number(from_number)
     return render(plain: "Send SETUP for instructions on getting started.") if budget.nil?
 
+    logger.info %(Received message "#{message}" from #{from_number}")
     message = MessageParser.parse(message)
-    logger.info %(Received message "#{message.message}" from #{from_number}")
+    category = budget.categories.where('lower(name) = ?', message.category.downcase).first
 
     category.update!(balance: category.balance - message.amount)
 
@@ -93,6 +104,8 @@ class MessagesController < ApplicationController
   end
 
   def budget_for_phone_number(from_number)
-    budget = User.find_by!(phone_number: from_number).budget
+    user = User.find_by(phone_number: from_number)
+
+    user.budget if user.present?
   end
 end
