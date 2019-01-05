@@ -92,7 +92,7 @@ class MessagesController < ApplicationController
     render plain: response
   end
 
-  def budget_for_phone_number(phone_number)
+  def budget_for_phone_number(from_number)
     budget = User.find_by!(phone_number: from_number).budget
   end
 end
