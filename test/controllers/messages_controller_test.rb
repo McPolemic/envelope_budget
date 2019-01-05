@@ -88,4 +88,34 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal expected, response.body
   end
+
+  test "enabling balance notifications" do
+    phone_number = '+11234567890'
+    params = {
+      'From' => phone_number,
+      'Body' => 'update on'
+    }
+
+    post messages_url, params: params
+
+    user = User.find_by(phone_number: phone_number)
+
+    assert_equal user.notifications?, true
+    assert_match /turned on/, response.body
+  end
+
+  test "disabling balance notifications" do
+    phone_number = '+11234567890'
+    params = {
+      'From' => phone_number,
+      'Body' => 'update off'
+    }
+
+    post messages_url, params: params
+
+    user = User.find_by(phone_number: phone_number)
+
+    assert_equal user.notifications?, false
+    assert_match /turned off/, response.body
+  end
 end

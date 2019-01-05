@@ -12,6 +12,8 @@ class MessagesController < ApplicationController
       handle_setup(from_number)
     when "monthly", "budget"
       handle_monthly_budget_amount(from_number, message)
+    when "update"
+      handle_notification_update(from_number, message)
     when "balance"
       handle_balance(from_number, message)
     else
@@ -19,16 +21,18 @@ class MessagesController < ApplicationController
     end
   end
 
-  private
   def handle_setup(from_number)
     render plain: <<~EOF
       Set a monthly budget:
       MONTHLY $500 Eating Out
 
-      Get a balance:
-      BALANCE [category name]
+      Monthly balance updates:
+      UPDATE on/off
 
-      Sending transactions (amount and category):
+      Balance check:
+      BALANCE
+
+      Tracking amount and category:
       $12.23 eating out
     EOF
   end
@@ -101,6 +105,30 @@ class MessagesController < ApplicationController
     logger.info %("Sending message \"#{response}\" to #{from_number}")
 
     render plain: response
+  end
+
+  def handle_notification_update(phone_number, message)
+    user = User.find_by(phone_number: phone_number)
+
+
+    notify = case message.split(' ').last.downcase
+             when "on", "enable", "yes"
+               true
+             when "off", "disable", "no"
+               false
+             else
+               :invalid
+             end
+
+    return render(plain: <<~EOF) if notify == :invalid
+      Error: Could not parse messages.
+      To enable balance updates, send "updates on".
+      To disable balance updates, send "updates off".
+      EOF
+
+    user.update_attributes!(notifications: notify)
+
+    render(plain: "Daily budget updates have been turned #{notify ? 'on' : 'off'}.")
   end
 
   def budget_for_phone_number(from_number)

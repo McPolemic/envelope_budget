@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_01_04_164402) do
+ActiveRecord::Schema.define(version: 2019_01_05_075012) do
 
   create_table "budgets", force: :cascade do |t|
     t.string "name"
@@ -30,6 +30,7 @@ ActiveRecord::Schema.define(version: 2019_01_04_164402) do
     t.string "phone_number"
     t.string "name"
     t.integer "budget_id"
+    t.boolean "notifications"
     t.index ["budget_id"], name: "index_users_on_budget_id"
   end
 

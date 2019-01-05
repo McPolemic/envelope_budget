@@ -10,7 +10,7 @@ namespace :balances do
       category.budget.users.each do |user|
         Messenger.send_message(user.phone_number,
                                message,
-                               logger: logger)
+                               logger: logger) if user.notifications?
       end
     end
   end
