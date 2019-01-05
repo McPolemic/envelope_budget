@@ -5,7 +5,7 @@ class MessageParser
   Message = Value.new(:amount, :category)
 
   def self.parse(message)
-    raw_amount, raw_category = s.match(/(\$*[\d.]+)(.*)/)[1..2]
+    raw_amount, raw_category = message.match(/(\$*[\d.]+)(.*)/)[1..2]
     amount = Monetize.parse(raw_amount)
     category = category.strip
 

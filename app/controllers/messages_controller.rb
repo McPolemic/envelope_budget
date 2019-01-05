@@ -5,6 +5,7 @@ class MessagesController < ApplicationController
 
     command, message = raw_message.split(' ', 2)
     command = command.downcase
+    message = message.strip
 
     case command
     when "help", "setup"
@@ -77,23 +78,15 @@ class MessagesController < ApplicationController
   end
 
   def handle_transaction(from_number, message)
-    budget = Budget.find_by(from_number: from_number)
+    budget = budget_for_phone_number(from_number)
     return render(plain: "Send SETUP for instructions on getting started.") if budget.nil?
 
     message = MessageParser.parse(message)
-
     logger.info %(Received message "#{message.message}" from #{from_number}")
 
-    budget.balance -= message.amount
-    budget.save!
-    # Save transaction
-    # Get total category amount from config
-    # Get sum of transactions
-    # balance = total - transaction_sum
+    category.update!(balance: category.balance - message.amount)
 
-    raise "Not implemeneted yet"
-
-    response = "Neato! Your balance is now #{budget.balance.format}."
+    response = "Neato! Your balance is now #{category.balance.format}."
     logger.info %("Sending message \"#{response}\" to #{from_number}")
 
     render plain: response
