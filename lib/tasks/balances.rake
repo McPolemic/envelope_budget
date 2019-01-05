@@ -1,13 +1,17 @@
 namespace :balances do
-  desc "Add daily budget amount to all budgets and send a balance update"
-  task :update => :environment do
+  desc "Reset monthly category balances"
+  task :monthly_reset => :environment do
     logger = Logger.new(STDOUT)
 
-    Budget.all.each do |budget|
-      budget.add_daily_budget_amount!
-      Messenger.send_message(budget.from_number,
-                             "Good morning! Your budget is now #{budget.balance.format}.",
-                             logger: logger) if budget.notify_on_balance_updates?
+    Category.all.each do |category|
+      category.update!(balance: category.monthly_amount)
+      message = %Q(Good morning! Your "#{category.name}" budget is now at #{category.balance.format}.)
+
+      category.budget.users.each do |user|
+        Messenger.send_message(user.phone_number,
+                               message,
+                               logger: logger)
+      end
     end
   end
 end
