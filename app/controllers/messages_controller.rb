@@ -101,7 +101,14 @@ class MessagesController < ApplicationController
 
     category.update!(balance: category.balance - message.amount)
 
-    response = "Neato! Your balance is now #{category.balance.format}."
+    daily_amount = MonthlyCalculator.new(category.balance, Date.today).daily_amount
+
+    response = <<~EOF
+      Your "#{category.name}" balance is now #{category.balance.format}.
+
+      That's #{daily_amount.format} per day for the rest of the month.
+    EOF
+
     logger.info %("Sending message \"#{response}\" to #{from_number}")
 
     render plain: response

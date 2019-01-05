@@ -10,20 +10,22 @@ class MonthlyCalculator
     daily_amount * current_date.day
   end
 
+  # Get the last day of the current month
   def self.number_of_days_in_month(date)
-    year = date.year
-    next_month = date.month
+    Date.new(date.year, date.month, -1).day
+  end
 
-    Date.new(year, next_month, -1).day
+  def self.remaining_number_of_days_in_month(date)
+    (Date.new(date.year, date.month, -1) - date).to_i
   end
 
   def daily_amount
-    budget_amount / number_of_days_in_month
+    budget_amount / remaining_number_of_days_in_month
   end
 
   private
 
-  def number_of_days_in_month
-    self.class.number_of_days_in_month(current_date)
+  def remaining_number_of_days_in_month
+    self.class.remaining_number_of_days_in_month(current_date)
   end
 end

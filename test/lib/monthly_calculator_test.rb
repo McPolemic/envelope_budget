@@ -27,23 +27,5 @@ describe MonthlyCalculator do
         calculator.current_budget_amount.must_equal 10
       end
     end
-
-    describe "on the last day of a 30-day month" do
-      it "is the entire monthly budget amount" do
-        today = Date.new(2017, 4, 30)
-        calculator = MonthlyCalculator.new(300, today)
-
-        calculator.current_budget_amount.must_equal 300
-      end
-    end
-
-    describe "halfway through a month" do
-      it "is half the total budget amount" do
-        today = Date.new(2017, 4, 15)
-        calculator = MonthlyCalculator.new(300, today)
-
-        calculator.current_budget_amount.must_equal 150
-      end
-    end
   end
 end

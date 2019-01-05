@@ -15,14 +15,22 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "receiving a transaction from a known number" do
+    # 10 days remaining in the month
+    travel_to Time.new(2019, 4, 20, 12, 00, 00)
+
     params = {
       'From' => '+11234567890',
-      'Body' => '$15 eating out'
+      'Body' => '$100 eating out'
     }
 
     post messages_url, params: params
 
-    assert_match /\$485\.00/, response.body
+    expected = <<~EOF
+      Your "Eating Out" balance is now $400.00.
+
+      That's $40.00 per day for the rest of the month.
+    EOF
+    assert_equal expected, response.body
   end
 
   test "receiving a transaction from an unknown number" do
