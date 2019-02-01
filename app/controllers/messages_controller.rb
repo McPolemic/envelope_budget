@@ -80,7 +80,7 @@ class MessagesController < ApplicationController
     logger.info %(Received message "#{message}" from #{from_number}")
     message = MessageParser.parse(message)
     category = budget.categories.where('lower(name) = ?', message.category.downcase).first
-    logger.info( %q(Current balance for "#{category.name}": #{category.balance}) )
+    logger.info( %Q(Current balance for "#{category.name}": #{category.balance}) )
 
     category.update!(balance: category.balance - message.amount)
 
