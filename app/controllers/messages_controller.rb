@@ -86,7 +86,7 @@ class MessagesController < ApplicationController
 
     daily_amount = MonthlyCalculator.new(category.balance, Date.today).daily_amount
 
-    response = <<~EOF
+    response = <<~EOF.strip
       Your "#{category.name}" balance is now #{category.balance.format}.
 
       That's #{daily_amount.format} per day for the rest of the month.
