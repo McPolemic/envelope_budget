@@ -36,7 +36,7 @@ class MessagesController < ApplicationController
       $12.23 eating out
     EOF
   end
-  
+
   def handle_monthly_budget_amount(from_number, message)
     message = MessageParser.parse(message)
     budget = budget_for_phone_number(from_number)

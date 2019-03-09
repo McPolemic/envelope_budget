@@ -30,7 +30,7 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
 
     post messages_url, params: params
 
-    expected = <<~EOF
+    expected = <<~EOF.strip
       Your "Eating Out" balance is now $400.00.
 
       That's $40.00 per day for the rest of the month.
