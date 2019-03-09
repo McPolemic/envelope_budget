@@ -80,24 +80,43 @@ class MessagesController < ApplicationController
     logger.info %(Received message "#{message}" from #{from_number}")
     message = MessageParser.parse(message)
     category = budget.categories.where('lower(name) = ?', message.category.downcase).first
-    logger.info( %Q(Current balance for "#{category.name}": #{category.balance}) )
 
-    category.update!(balance: category.balance - message.amount)
+    response =
+      if category.nil?
+        unknown_category_response(category_name: message.category,
+                                  categories: budget.categories)
+      else
+        logger.info( %Q(Current balance for "#{category.name}": #{category.balance}) )
 
-    daily_amount = MonthlyCalculator.new(category.balance, Date.today).daily_amount
+        category.update!(balance: category.balance - message.amount)
 
-    response = <<~EOF.strip
-      Your "#{category.name}" balance is now #{category.balance.format}.
+        daily_amount = MonthlyCalculator.new(category.balance, Date.today).daily_amount
 
-      That's #{daily_amount.format} per day for the rest of the month.
-    EOF
+        <<~EOF
+          Your "#{category.name}" balance is now #{category.balance.format}.
+
+          That's #{daily_amount.format} per day for the rest of the month.
+        EOF
+      end
 
     # Send transaction results to all users on a budget
     budget.users.each do |user|
-      Messenger.send_message(user.phone_number, response, logger: Rails.logger)
+      Messenger.send_message(user.phone_number, response.strip, logger: Rails.logger)
     end
 
     render plain: ''
+  end
+
+  def unknown_category_response(category_name:, categories:)
+    response = <<~EOF
+      Invalid category "#{category_name}".
+
+      Valid categories:
+    EOF
+
+    response += categories.map do |category|
+      "* #{category.name}"
+    end.join("\n")
   end
 
   def handle_notification_update(phone_number, message)

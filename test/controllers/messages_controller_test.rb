@@ -19,6 +19,25 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
                      balance: Money.new(1000_00, "USD"))
   end
 
+  test "receiving a transaction from a known number with an unknown category" do
+    params = {
+      'From' => '+11234567890',
+      'Body' => '$100 house cleaning'
+    }
+
+    post messages_url, params: params
+
+    expected = <<~EOF.strip
+      Invalid category "house cleaning".
+
+      Valid categories:
+      * Eating Out
+      * Groceries
+    EOF
+
+    assert_equal expected, Messenger.last_message
+  end
+
   test "receiving a transaction from a known number" do
     # 10 days remaining in the month
     travel_to Time.new(2019, 4, 20, 12, 00, 00)
