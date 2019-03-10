@@ -81,23 +81,23 @@ class MessagesController < ApplicationController
     message = MessageParser.parse(message)
     category = budget.categories.where('lower(name) = ?', message.category.downcase).first
 
-    response =
-      if category.nil?
-        unknown_category_response(category_name: message.category,
-                                  categories: budget.categories)
-      else
-        logger.info( %Q(Current balance for "#{category.name}": #{category.balance}) )
+    if category.nil?
+      response = unknown_category_response(category_name: message.category,
+                                           categories: budget.categories)
+      return render plain: response
+    end
 
-        category.update!(balance: category.balance - message.amount)
+    logger.info( %Q(Current balance for "#{category.name}": #{category.balance}) )
 
-        daily_amount = MonthlyCalculator.new(category.balance, Date.today).daily_amount
+    category.update!(balance: category.balance - message.amount)
 
-        <<~EOF
-          Your "#{category.name}" balance is now #{category.balance.format}.
+    daily_amount = MonthlyCalculator.new(category.balance, Date.today).daily_amount
 
-          That's #{daily_amount.format} per day for the rest of the month.
-        EOF
-      end
+    response = <<~EOF
+      Your "#{category.name}" balance is now #{category.balance.format}.
+
+      That's #{daily_amount.format} per day for the rest of the month.
+    EOF
 
     # Send transaction results to all users on a budget
     budget.users.each do |user|

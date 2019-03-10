@@ -35,7 +35,7 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
       * Groceries
     EOF
 
-    assert_equal expected, Messenger.last_message
+    assert_equal expected, response.body
   end
 
   test "receiving a transaction from a known number" do
