@@ -95,9 +95,14 @@ class MessagesController < ApplicationController
 
     response = <<~EOF
       Your "#{category.name}" balance is now #{category.balance.format}.
-
-      That's #{daily_amount.format} per day for the rest of the month.
     EOF
+
+    if daily_amount > 0
+      response += <<~EOF
+
+        That's #{daily_amount.format} per day for the rest of the month.
+      EOF
+    end
 
     # Send transaction results to all users on a budget
     budget.users.each do |user|

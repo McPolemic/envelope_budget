@@ -60,6 +60,26 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
     assert_equal expected, Messenger.last_message
   end
 
+  test "going negative in a category prevents a per-day balance" do
+    # 10 days remaining in the month
+    travel_to Time.new(2019, 4, 20, 12, 00, 00)
+
+    params = {
+      'From' => '+11234567890',
+      'Body' => '$600 eating out'
+    }
+
+    post messages_url, params: params
+
+    expected = <<~EOF.strip
+      Your "Eating Out" balance is now $-100.00.
+    EOF
+
+    # These are sent to all users (that are signed up), so we look to the last
+    # sent message rather than the response from the endpoint
+    assert_equal expected, Messenger.last_message
+  end
+
   test "receiving a transaction from an unknown number" do
     params = {
       'From' => '+19999999999',
