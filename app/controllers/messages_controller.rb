@@ -22,19 +22,7 @@ class MessagesController < ApplicationController
   end
 
   def handle_setup(from_number)
-    render plain: <<~EOF
-      Set a monthly budget:
-      MONTHLY $500 Eating Out
-
-      Monthly balance updates:
-      UPDATE on/off
-
-      Balance check:
-      BALANCE
-
-      Tracking amount and category:
-      $12.23 eating out
-    EOF
+    render plain: MessageRenderer.setup
   end
 
   def handle_monthly_budget_amount(from_number, message)
@@ -54,7 +42,7 @@ class MessagesController < ApplicationController
 
     category.update!(monthly_amount: message.amount, balance: balance)
 
-    render plain: "Groovy! Your balance is currently #{balance.format}."
+    render plain: MessageRenderer.monthly_budget_amount(balance)
   end
 
   def handle_balance(from_number, category_name)
