@@ -54,10 +54,7 @@ class MessagesController < ApplicationController
                    budget.categories.order(:name)
                  end
 
-    response = categories.map do |category|
-      "#{category.name}: #{category.balance.format} (#{category.remaining_per_day.format} per day)"
-    end.join("\n")
-
+    response = MessageRenderer.balance(categories)
     render plain: response
   end
 
@@ -70,8 +67,8 @@ class MessagesController < ApplicationController
     category = budget.categories.where('lower(name) = ?', message.category.downcase).first
 
     if category.nil?
-      response = unknown_category_response(category_name: message.category,
-                                           categories: budget.categories)
+      response = MessageRenderer.unknown_category_response(category_name: message.category,
+                                                           categories: budget.categories)
       return render plain: response
     end
 
@@ -80,17 +77,8 @@ class MessagesController < ApplicationController
     category.update!(balance: category.balance - message.amount)
 
     daily_amount = MonthlyCalculator.new(category.balance, Date.today).daily_amount
-
-    response = <<~EOF
-      Your "#{category.name}" balance is now #{category.balance.format}.
-    EOF
-
-    if daily_amount > 0
-      response += <<~EOF
-
-        That's #{daily_amount.format} per day for the rest of the month.
-      EOF
-    end
+    response = MessageRenderer.transaction(category: category,
+                                           daily_amount: daily_amount)
 
     # Send transaction results to all users on a budget
     budget.users.each do |user|
@@ -98,18 +86,6 @@ class MessagesController < ApplicationController
     end
 
     render plain: ''
-  end
-
-  def unknown_category_response(category_name:, categories:)
-    response = <<~EOF
-      Invalid category "#{category_name}".
-
-      Valid categories:
-    EOF
-
-    response += categories.map do |category|
-      "* #{category.name}"
-    end.join("\n")
   end
 
   def handle_notification_update(phone_number, message)
@@ -133,7 +109,8 @@ class MessagesController < ApplicationController
 
     user.update_attributes!(notifications: notify)
 
-    render(plain: "Daily budget updates have been turned #{notify ? 'on' : 'off'}.")
+    response = MessageRenderer.update_notifications(notify)
+    render(plain: response)
   end
 
   def budget_for_phone_number(from_number)
