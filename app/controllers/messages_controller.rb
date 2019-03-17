@@ -98,14 +98,8 @@ class MessagesController < ApplicationController
              when "off", "disable", "no"
                false
              else
-               :invalid
+               return render(plain: MessageRenderer.invalid_notification_update)
              end
-
-    return render(plain: <<~EOF) if notify == :invalid
-      Error: Could not parse messages.
-      To enable balance updates, send "updates on".
-      To disable balance updates, send "updates off".
-      EOF
 
     user.update_attributes!(notifications: notify)
 

@@ -177,4 +177,17 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
     assert_equal user.notifications?, false
     assert_match /turned off/, response.body
   end
+
+  test "invalid balance notifications" do
+    phone_number = '+11234567890'
+    params = {
+      'From' => phone_number,
+      'Body' => 'update snarf'
+    }
+
+    user = User.find_by(phone_number: phone_number)
+    post messages_url, params: params
+
+    assert_match /Could not parse/, response.body
+  end
 end

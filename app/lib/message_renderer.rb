@@ -60,4 +60,12 @@ class MessageRenderer
        .result_with_hash(category: category,
                          daily_amount: daily_amount)
   end
+
+  def self.invalid_notification_update
+    <<~EOF
+      Error: Could not parse messages.
+      To enable balance updates, send "updates on".
+      To disable balance updates, send "updates off".
+    EOF
+  end
 end
