@@ -1,0 +1,25 @@
+<% @categories.each do |category| %>
+  <h1>
+    <%= category.name %>
+  </h1>
+  <p>Balance: <%= category.balance.format %></p>
+  <p>Balance: <%= category.monthly_amount.format %></p>
+  <% if category.transactions.any? %>
+    <table>
+      <thead>
+        <th>Date</th>
+        <th>From</th>
+        <th>Amount</th>
+      </thead>
+      <tbody>
+        <% category.transactions.each do |transaction| %>
+          <tr>
+            <td><%= transaction.localized_datetime %></td>
+            <td><%= transaction.from_name %></td>
+            <td><%= transaction.amount.format %></td>
+          </tr>
+        <% end %>
+      </thead>
+    </table>
+  <% end %>
+<% end %>
