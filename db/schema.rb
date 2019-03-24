@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_01_05_075012) do
+ActiveRecord::Schema.define(version: 2019_03_24_142144) do
 
   create_table "budgets", force: :cascade do |t|
     t.string "name"
@@ -24,6 +24,16 @@ ActiveRecord::Schema.define(version: 2019_01_05_075012) do
     t.string "name"
     t.integer "budget_id"
     t.index ["budget_id"], name: "index_categories_on_budget_id"
+  end
+
+  create_table "transactions", force: :cascade do |t|
+    t.integer "category_id"
+    t.integer "amount_cents"
+    t.datetime "datetime"
+    t.string "from"
+    t.string "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "users", force: :cascade do |t|
