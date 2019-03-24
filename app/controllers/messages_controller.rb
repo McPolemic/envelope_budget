@@ -75,11 +75,14 @@ class MessagesController < ApplicationController
 
     logger.info( %Q(Current balance for "#{category.name}": #{category.balance}) )
 
+    category.transactions.create!(amount: message.amount, datetime: Time.now.utc, from: from_number)
     category.update!(balance: category.balance - message.amount)
 
     daily_amount = MonthlyCalculator.new(category.balance, Date.today).daily_amount
     response = MessageRenderer.transaction(category: category,
                                            daily_amount: daily_amount)
+
+    logger.info( %Q(New balance for "#{category.name}": #{category.balance}) )
 
     # Send transaction results to all users on a budget
     budget.users.each do |user|

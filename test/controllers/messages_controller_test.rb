@@ -38,7 +38,7 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
     assert_equal expected, response.body
   end
 
-  test "receiving a transaction from a known number" do
+  test "receiving a transaction from a known number saves the transaction and modifies the balance" do
     # 10 days remaining in the month
     travel_to Time.new(2019, 4, 20, 12, 00, 00)
 
@@ -58,6 +58,7 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
     # These are sent to all users (that are signed up), so we look to the last
     # sent message rather than the response from the endpoint
     assert_equal expected, Messenger.last_message
+    assert_equal "$100.00", Transaction.last.amount.format
   end
 
   test "going negative in a category prevents a per-day balance" do
