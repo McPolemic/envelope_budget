@@ -48,13 +48,14 @@ class MessagesController < ApplicationController
   def handle_balance(from_number, category_name)
     budget = budget_for_phone_number(from_number)
 
-    categories = if category_name
-                   [budget.find_category(category_name)]
-                 else
-                   budget.categories.order(:name)
-                 end
+    response = if category_name
+                 category = budget.find_category(category_name)
+                 MessageRenderer.balance(category)
+               else
+                 categories = budget.categories.order(:name)
+                 MessageRenderer.balances(categories)
+               end
 
-    response = MessageRenderer.balance(categories)
     render plain: response
   end
 

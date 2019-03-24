@@ -23,14 +23,19 @@ class MessageRenderer
     "Daily budget updates have been turned #{notify ? 'on' : 'off'}."
   end
 
-  def self.balance(categories)
-    categories.map do |category|
-      name = category.name
-      balance = category.balance.format
-      remaining_per_day = category.remaining_per_day.format
+  def self.balances(categories)
+    total = Category.new(name: "Total",
+                         balance_cents: categories.map(&:balance_cents).sum)
+    display_categories = categories.dup + [total]
+    display_categories.map { |category| balance(category) }.join("\n")
+  end
 
-      "#{name}: #{balance} (#{remaining_per_day} per day)"
-    end.join("\n")
+  def self.balance(category)
+    name = category.name
+    balance = category.balance.format
+    remaining_per_day = category.remaining_per_day.format
+
+    "#{name}: #{balance} (#{remaining_per_day} per day)"
   end
 
   def self.unknown_category_response(category_name:, categories:)

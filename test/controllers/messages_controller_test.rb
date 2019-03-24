@@ -143,6 +143,7 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
     expected = <<~EOF.strip
       Eating Out: $500.00 ($50.00 per day)
       Groceries: $1,000.00 ($100.00 per day)
+      Total: $1,500.00 ($150.00 per day)
     EOF
 
     assert_equal expected, response.body
