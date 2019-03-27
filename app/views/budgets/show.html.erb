@@ -3,7 +3,7 @@
     <%= category.name %>
   </h1>
   <p>Balance: <%= category.balance.format %></p>
-  <p>Balance: <%= category.monthly_amount.format %></p>
+  <p>Monthly Amount: <%= category.monthly_amount.format %></p>
   <% if category.transactions.any? %>
     <table>
       <thead>
