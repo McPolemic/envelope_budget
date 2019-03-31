@@ -40,7 +40,7 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
 
   test "receiving a transaction from a known number saves the transaction and modifies the balance" do
     # 10 days remaining in the month
-    travel_to Time.new(2019, 4, 20, 12, 00, 00)
+    travel_to Time.new(2019, 4, 21, 12, 00, 00)
 
     params = {
       'From' => '+11234567890',
@@ -120,7 +120,7 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
 
   test 'get a balance for a specific category' do
     # 10 days remaining in the month
-    travel_to Time.new(2019, 4, 20, 12, 00, 00)
+    travel_to Time.new(2019, 4, 21, 12, 00, 00)
 
     params = {
       'From' => '+11234567890',
@@ -134,6 +134,9 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'get all balances for a budget' do
+    # With 10 days remaining (so the per day is just divided by 10)
+    travel_to Time.new(2019, 4, 21, 12, 00, 00)
+
     params = {
       'From' => '+11234567890',
       'Body' => 'Balance'
