@@ -139,7 +139,7 @@ class MessagesControllerTest < ActionDispatch::IntegrationTest
 
     params = {
       'From' => '+11234567890',
-      'Body' => 'Balance'
+      'Body' => 'Balance '
     }
 
     post messages_url, params: params
