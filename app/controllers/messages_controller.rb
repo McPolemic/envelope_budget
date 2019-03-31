@@ -48,7 +48,7 @@ class MessagesController < ApplicationController
   def handle_balance(from_number, category_name)
     budget = budget_for_phone_number(from_number)
 
-    response = if category_name
+    response = if category_name.present?
                  logger.info( %Q(Showing balance for "#{category_name}" to #{from_number} ))
                  category = budget.find_category(category_name)
                  MessageRenderer.balance(category)
