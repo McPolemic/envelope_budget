@@ -35,7 +35,11 @@ class MessageRenderer
     balance = category.balance.format
     remaining_per_day = category.remaining_per_day.format
 
-    "#{name}: #{balance} (#{remaining_per_day} per day)"
+    if category.balance >= 0
+      "#{name}: #{balance} (#{remaining_per_day} per day)"
+    else
+      "#{name}: #{balance}"
+    end
   end
 
   def self.unknown_category_response(category_name:, categories:)
